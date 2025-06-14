@@ -27,15 +27,27 @@ public class GitHubHomePageTest {
 
     @Before
     public void setUp() {
-    	System.setProperty("wdm.cachePath", "/tmp/selenium-cache");
-        WebDriverManager.chromedriver().setup();
+        // 1. Use the chromedriver that ships with markhobson/maven‑chrome
+        System.setProperty("webdriver.chrome.driver", "/usr/bin/chromedriver");
+        // 2. (optional) Be explicit about Chrome binary too
+        System.setProperty("webdriver.chrome.binary", "/usr/bin/google-chrome");
 
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless=new", "--no-sandbox", "--disable-gpu",
-                             "--window-size=1920,1080");
+        options.addArguments(
+            "--headless=new",
+            "--no-sandbox",
+            "--disable-dev-shm-usage", // helps Chrome in Docker
+            "--disable-gpu",
+            "--window-size=1920,1080"
+        );
+
         driver = new ChromeDriver(options);
-        driver.get("http://18.207.221.226:3000");
+
+        /* Use localhost because the test container is started with
+           `--network host` and your app is published on host:3000 */
+        driver.get("http://localhost:3000");
     }
+
 
     /** 🔹 Example test case #1: page title check */
     @Test
