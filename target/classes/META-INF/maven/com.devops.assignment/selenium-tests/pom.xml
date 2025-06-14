@@ -54,6 +54,16 @@
           <reportsDirectory>target/surefire-reports</reportsDirectory> <!-- Ensure reports are generated here -->
         </configuration>
       </plugin>
+      <plugin>
+	      <groupId>org.apache.maven.plugins</groupId>
+	      <artifactId>maven-compiler-plugin</artifactId>
+	      <version>3.8.1</version> <!-- You can use this version or a newer one -->
+	      <configuration>
+	        <source>17</source> <!-- Set source Java version to 17 -->
+	        <target>17</target> <!-- Set target Java version to 17 -->
+	      </configuration>
+    </plugin>
+
     </plugins>
   </build>
 </project>
