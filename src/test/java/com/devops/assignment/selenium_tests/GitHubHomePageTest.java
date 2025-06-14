@@ -27,8 +27,7 @@ public class GitHubHomePageTest {
 
     @Before
     public void setUp() {
-    	// Fix WebDriverManager cache issue in Docker container
-        System.setProperty("wdm.cachePath", "/tmp/selenium-cache");
+    	System.setProperty("wdm.cachePath", "/tmp/selenium-cache");
         WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless=new", "--no-sandbox", "--disable-gpu",
@@ -252,29 +251,35 @@ public class GitHubHomePageTest {
       /** 🔹 Example test case #9: Verify item deletion toggle status */ 
     @Test
     public void addMultipleItemsAndCheckCount() {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    	WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         String baseText = "BulkAddTest-";
         int count = 3;
 
         for (int i = 0; i < count; i++) {
             String itemText = baseText + i;
 
+            // Locate input field and clear it
             WebElement input = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("todo-input")));
             input.clear();
             input.sendKeys(itemText);
 
-            // Wait until button is enabled
-            WebElement addBtn = wait.until(ExpectedConditions.elementToBeClickable(By.id("todo-add")));
+            // Wait for the add button to be enabled after entering text
+            WebElement addBtn = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("todo-add")));
+            wait.until(driver -> addBtn.isEnabled()); // Ensure button is enabled
+            wait.until(ExpectedConditions.elementToBeClickable(addBtn)); // Ensure button is clickable
             addBtn.click();
 
-            // Wait until this new item appears
+            // Wait until the new item appears
             String xpath = "//div[contains(@class,'name') and contains(normalize-space(),'" + itemText + "')]";
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpath)));
+
+            // Brief pause to allow UI to stabilize (optional, for robustness)
+            try { Thread.sleep(500); } catch (InterruptedException e) { /* Ignore */ }
         }
 
         // Final assertion: at least `count` items now exist
         List<WebElement> items = driver.findElements(By.cssSelector("div.item"));
-        assertTrue("Expected at least " + count + " items", items.size() >= count);
+        assertTrue("Expected at least " + count + " items, but found " + items.size(), items.size() >= count);
     }
 
   
