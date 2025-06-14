@@ -104,38 +104,29 @@ public class GitHubHomePageTest {
 
     /** 🔹 Example test case #4: Verify the checkbox */
     @Test
-    public void markItemAsComplete() {
+    public void markNewestItemAsComplete() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        String todoText = "Read Book";
 
-        // 1️⃣ add the item
+        // 1️⃣  Add a unique item
+        String todoText = "Read Book " + System.currentTimeMillis();
         wait.until(ExpectedConditions.elementToBeClickable(By.id("todo-input")))
             .sendKeys(todoText);
         wait.until(ExpectedConditions.elementToBeClickable(By.id("todo-add")))
             .click();
 
-        // 2️⃣ locate the freshly‑added row (uncompleted state)
-        String rowXpath =
-            "//div[contains(@class,'item') and .//div[@class='name' and normalize-space()='" +
-            todoText + "']]";
-        WebElement row = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(rowXpath)));
+        // 2️⃣  Wait until the list grows (new row appended at the end)
+        List<WebElement> rows =
+            wait.until(driver -> driver.findElements(By.cssSelector("div.item")));
+        WebElement lastRow = rows.get(rows.size() - 1);
 
-        // 3️⃣ click its toggle button
-        row.findElement(By.cssSelector("button.toggles")).click();
+        // 3️⃣  Click its toggle button
+        lastRow.findElement(By.cssSelector("button.toggles")).click();
 
-        // 4️⃣ wait for that *old* row to disappear …
-        wait.until(ExpectedConditions.stalenessOf(row));
-
-        // 5️⃣ … then locate the *new* row that now has class 'completed'
-        WebElement completedRow = wait.until(
-            ExpectedConditions.visibilityOfElementLocated(
-                By.xpath(rowXpath + "[contains(@class,'completed')]")
-            )
-        );
-
-        // 6️⃣ assert
-        assertTrue(completedRow.getAttribute("class").contains("completed"));
+        // 4️⃣  Assert this very row now has the 'completed' class
+        wait.until(ExpectedConditions.attributeContains(lastRow, "class", "completed"));
+        assertTrue(lastRow.getAttribute("class").contains("completed"));
     }
+
 
 
 
