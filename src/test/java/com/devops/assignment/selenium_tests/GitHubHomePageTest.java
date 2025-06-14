@@ -108,33 +108,35 @@ public class GitHubHomePageTest {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         String todoText = "Read Book";
 
-        // 1️ - Add the new item
+        // 1️⃣ add the item
         wait.until(ExpectedConditions.elementToBeClickable(By.id("todo-input")))
             .sendKeys(todoText);
         wait.until(ExpectedConditions.elementToBeClickable(By.id("todo-add")))
             .click();
 
-        // 2️ - Locate the <div class="name"> that contains the text we just added
-        WebElement nameDiv = wait.until(
+        // 2️⃣ locate the freshly‑added row (uncompleted state)
+        String rowXpath =
+            "//div[contains(@class,'item') and .//div[@class='name' and normalize-space()='" +
+            todoText + "']]";
+        WebElement row = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(rowXpath)));
+
+        // 3️⃣ click its toggle button
+        row.findElement(By.cssSelector("button.toggles")).click();
+
+        // 4️⃣ wait for that *old* row to disappear …
+        wait.until(ExpectedConditions.stalenessOf(row));
+
+        // 5️⃣ … then locate the *new* row that now has class 'completed'
+        WebElement completedRow = wait.until(
             ExpectedConditions.visibilityOfElementLocated(
-                By.xpath("//div[contains(@class,'name') and normalize-space()='" + todoText + "']")
+                By.xpath(rowXpath + "[contains(@class,'completed')]")
             )
         );
 
-        // 3️ - Climb to its parent container with class "item"
-        WebElement itemContainer = nameDiv.findElement(
-            By.xpath("./ancestor::div[contains(@class,'item')]")
-        );
-
-        // 4️ - Click that row’s toggle button
-        itemContainer.findElement(By.cssSelector("button.toggles")).click();
-
-        // 5️ - Wait until the container gains the 'completed' class
-        wait.until(ExpectedConditions.attributeContains(itemContainer, "class", "completed"));
-
-        // 6️ - Assert
-        assertTrue(itemContainer.getAttribute("class").contains("completed"));
+        // 6️⃣ assert
+        assertTrue(completedRow.getAttribute("class").contains("completed"));
     }
+
 
 
     
