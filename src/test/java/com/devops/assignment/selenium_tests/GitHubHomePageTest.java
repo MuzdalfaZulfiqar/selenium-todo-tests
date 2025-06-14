@@ -27,11 +27,21 @@ public class GitHubHomePageTest {
 
     @Before
     public void setUp() {
-    	System.setProperty("wdm.cachePath", "/tmp/selenium-cache");
+    	// Fix WebDriverManager cache issue in Docker container
+        System.setProperty("wdm.cachePath", "/tmp/selenium-cache");
+
+        // Set up WebDriverManager
         WebDriverManager.chromedriver().setup();
+
+        // Configure Chrome options
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless=new", "--no-sandbox", "--disable-gpu",
-                             "--window-size=1920,1080");
+        options.addArguments("--headless=new", "--no-sandbox", "--disable-gpu", "--window-size=1920,1080");
+
+        // Set a unique user data directory to avoid session conflicts
+        String userDataDir = "/tmp/chrome-user-data-" + System.currentTimeMillis();
+        options.addArguments("--user-data-dir=" + userDataDir);
+
+        // Initialize ChromeDriver
         driver = new ChromeDriver(options);
         driver.get("http://18.207.221.226:3000"); // Your app URL
     }
@@ -314,9 +324,6 @@ public class GitHubHomePageTest {
         assertFalse("Add button should be disabled after submitting", addButton.isEnabled());
     }
 
-
-
-    
     @After
     public void tearDown() {
         if (driver != null) driver.quit();
