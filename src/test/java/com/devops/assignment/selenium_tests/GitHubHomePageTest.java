@@ -27,12 +27,14 @@ public class GitHubHomePageTest {
 
     @Before
     public void setUp() {
+    	// Fix WebDriverManager cache issue in Docker container
+        System.setProperty("wdm.cachePath", "/tmp/selenium-cache");
         WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless=new", "--no-sandbox", "--disable-gpu",
                              "--window-size=1920,1080");
         driver = new ChromeDriver(options);
-        driver.get("http://18.207.221.226:3000"); // your app URL
+        driver.get("http://18.207.221.226:3000"); // Your app URL
     }
 
     /** 🔹 Example test case #1: page title check */
